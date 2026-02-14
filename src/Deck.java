@@ -20,13 +20,18 @@ public class Deck {
         return cards.remove(rand.nextInt(cards.size()));
     }
 
-    public  static void removeCard(Card c) {
-        //removes card from deck when winning card is updated
-        cards.remove(c);
+    // Put a card back into the deck after the round (winner may be upgraded)
+    public static void returnCard(Card c) {
+        cards.add(c);
     }
 
     public static int size() {
         //used in tests
         return cards.size();
+    }
+
+    public static void prntCards() {
+        System.out.println(cards);
+        System.out.println(cards.size());
     }
 }

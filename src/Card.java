@@ -58,18 +58,28 @@ public class Card implements Comparable<Card> {
     public void updateCardValue() {
         if (this.value != Value.KING) {
             this.value = Value.values()[this.value.ordinal() + 1];
-            Card c = new Card(this.value, this.suit);
-            Deck.removeCard(c);
         }
     }
+
     //updates the card suit if it wins
     public void updateCardSuit() {
         if (this.suit != Suit.SPADES) {
             this.suit = Suit.values()[this.suit.ordinal() + 1];
-            Card c = new Card(this.value, this.suit);
-            Deck.removeCard(c);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Card other)) return false;
+        return value == other.value && suit == other.suit;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * value.hashCode() + suit.hashCode();
+    }
+
     @Override
     public int compareTo(Card o) {
         return value.ordinal() - o.value.ordinal();
@@ -80,12 +90,11 @@ public class Card implements Comparable<Card> {
         return suit.ordinal() - o.suit.ordinal();
     }
 
+
     @Override
     public String toString() {
         return suit + " " + value;
     }
-
-
 }
 
 

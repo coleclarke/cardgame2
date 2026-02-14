@@ -113,21 +113,35 @@ public class Dice {
 
         Die die = winner.getDie();
 
+        int oldBonus = die.bonus;
+        int oldSides = die.getSides();
+        int oldPoolSize = pool.size();
+
         // winner's die gets +1 permanently
         die.addBonus(1);
+        System.out.println("Die improvement: bonus " + oldBonus + " -> " + die.bonus);
 
-        //add a new d4 into the pool
+        // add a new d4 into the pool
         if (oneIn(100)) {
             if (pool.size() < POOL_CAP) {
                 pool.add(new Die(4));
+                System.out.println("Die improvement: added a new d4 to the pool (" + oldPoolSize + " -> " + pool.size() + ")");
+            } else {
+                System.out.println("Die improvement: tried to add a d4, but pool is capped at " + POOL_CAP);
             }
         }
 
-        //try to increase die size
-        //1 in 10 of those times it "backfires" and decreases instead
+        // try to increase die size (with possible backfire)
         if (oneIn(10)) {
             boolean backfire = oneIn(10);
             die.shiftSides(backfire ? -1 : +1);
+
+            int newSides = die.getSides();
+            if (newSides != oldSides) {
+                System.out.println("Die improvement: sides " + oldSides + " -> " + newSides + (backfire ? " (backfire)" : ""));
+            } else {
+                System.out.println("Die improvement: sides stayed at " + oldSides + (backfire ? " (backfire)" : ""));
+            }
         }
     }
 
