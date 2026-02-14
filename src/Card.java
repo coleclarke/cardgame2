@@ -1,10 +1,10 @@
 public class Card implements Comparable<Card> {
-
+    //Values
     enum Value {
         ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN,
         EIGHT, NINE, TEN, JACK, QUEEN, KING
     }
-
+    //Suits
     enum Suit {
         CLUBS, DIAMONDS, HEARTS, SPADES
     }
@@ -16,7 +16,7 @@ public class Card implements Comparable<Card> {
         value = v;
         suit = s;
     }
-
+    // takes the "code" like ac and makes it Clubs Ace
     public static Card fromCode(String code) {
         char v = code.charAt(0);
         char s = code.charAt(1);
@@ -48,12 +48,13 @@ public class Card implements Comparable<Card> {
 
         return new Card(value, suit);
     }
-
+    //makes the card
     public Card() {
         Card c = Deck.draw();
         this.value = c.value;
         this.suit = c.suit;
     }
+    //updates the card value if it wins
     public void updateCardValue() {
         if (this.value != Value.KING) {
             this.value = Value.values()[this.value.ordinal() + 1];
@@ -61,6 +62,7 @@ public class Card implements Comparable<Card> {
             Deck.removeCard(c);
         }
     }
+    //updates the card suit if it wins
     public void updateCardSuit() {
         if (this.suit != Suit.SPADES) {
             this.suit = Suit.values()[this.suit.ordinal() + 1];

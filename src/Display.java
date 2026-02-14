@@ -33,9 +33,9 @@ public class Display {
             System.out.println("maindeck.txt not found");
             System.exit(1);
         }
-
+        // pushes the cards into the deck
         Deck.init(rawCards);
-
+        // resets the dice pool incase of restart and pushes dice
         Dice.resetPool();
         for (String d : diceDefs) {
             Dice.init(d);
@@ -50,13 +50,14 @@ public class Display {
         Card player = new Card();
         Card house = new Card();
         while (true) {
+            // display cards and winner
             System.out.println("");
             System.out.println(player + " (Player 1)");
             System.out.println(house + " (Player 2)");
             System.out.println(compare(player, house));
 
 
-
+            // display dice and winner
             DiceFace d1 = new DiceFace();
             DiceFace d2 = new DiceFace();
 
@@ -83,6 +84,8 @@ public class Display {
                 house = new Card();
                 System.out.println("Restarted!\n\n\n");
             } else if (!temp.equals("y")) break;
+
+            // update winner card if sov (Suit or Value) is 0 it updates the value if sov is 1 it updates the suit
             int sov = rand.nextInt(0,2);
             if(player.compareTo(house) > 0 || (player.compareTo(house) == 0 && player.compareSuit(house) > 0)) {
                 if(sov == 0) {
@@ -99,7 +102,7 @@ public class Display {
             }
         }
     }
-
+    // old way of comparing cards too lazy to move into main class or make the dice like this
     private static String compare(Card a, Card b) {
         if (a.compareTo(b) < 0){
             return "Player 2's card is higher";

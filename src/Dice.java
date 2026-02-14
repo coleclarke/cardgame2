@@ -5,34 +5,44 @@ import java.util.Random;
 public class Dice {
 
     private static final int[] SIDE_TRACK = {2, 4, 6, 8, 12, 20};
+
+    // Hard limit so the pool can't grow forever
     private static final int POOL_CAP = 100;
 
+    // Shared pool: BOTH players roll from this same list of dice
     private static final List<Die> pool = new ArrayList<>();
+
     private static final Random rand = new Random();
 
-    // Clears the pool so it can be rebuilt from maindeck.txt
+    // Clears the pool
     public static void resetPool() {
         pool.clear();
     }
 
-    /**
-     * Pool comes from maindeck.txt:
-     * Each #...# definition adds one die, using the length as "sides"
-     * (snapped to 2->4->6->8->12->20).
-     */
+    // Adds die definition into the pool
     public static void init(String faces) {
         if (faces == null || faces.isEmpty()) return;
+
+        // Stop adding dice once we hit the max pool size
         if (pool.size() >= POOL_CAP) return;
 
+        // We use the LENGTH of the string as the "number of sides"
+        // Example: "1234" => 4 sides, "123456" => 6 sides
         int sides = faces.length();
+
+        // Create the die (it will snap sides to SIDE_TRACK inside the constructor)
         pool.add(new Die(sides));
     }
 
+    // A single die in the pool (it can evolve over time)
     public static final class Die {
-        private int sideTrackIndex; // index into SIDE_TRACK
+        // Index into SIDE_TRACK (0 means d2, 1 means d4, etc.)
+        private int sideTrackIndex;
+
         private int bonus;          // permanent +1 per win
 
         private Die(int sides) {
+            // Convert sides
             this.sideTrackIndex = indexForSides(sides);
             this.bonus = 0;
         }
@@ -41,11 +51,9 @@ public class Dice {
             return SIDE_TRACK[sideTrackIndex];
         }
 
-        public int getBonus() {
-            return bonus;
-        }
 
         private int roll() {
+            // Roll a number from 1..sides, then add the permanent bonus
             return rand.nextInt(1, getSides() + 1) + bonus; // 1..sides + bonus
         }
 
@@ -66,6 +74,8 @@ public class Dice {
         }
     }
 
+    // Result of a roll: we return BOTH the rolled value and which die was used
+    // (so we can upgrade the correct die after a win)
     public static final class Roll {
         private final Die die;
         private final int value;
@@ -84,27 +94,38 @@ public class Dice {
         }
     }
 
+    // Picks a random die from the pool and rolls it
     public static Roll roll() {
         if (pool.isEmpty()) {
+            // This means maindeck.txt didn't load any dice
             throw new IllegalStateException("Dice pool is empty. Did you load maindeck.txt dice with Dice.init(...) ?");
         }
+
+        // Choose a random die from the shared pool
         Die die = pool.get(rand.nextInt(pool.size()));
+
+        // Roll it and package the result
         return new Roll(die, die.roll());
     }
 
+    // Applies ALL winner upgrades to the die that was used for the winning roll
     public static void improveWinner(DiceFace winner) {
         if (winner == null || winner.getDie() == null) return;
 
         Die die = winner.getDie();
 
+        // winner's die gets +1 permanently
         die.addBonus(1);
 
+        //add a new d4 into the pool
         if (oneIn(100)) {
             if (pool.size() < POOL_CAP) {
                 pool.add(new Die(4));
             }
         }
 
+        //try to increase die size
+        //1 in 10 of those times it "backfires" and decreases instead
         if (oneIn(10)) {
             boolean backfire = oneIn(10);
             die.shiftSides(backfire ? -1 : +1);
