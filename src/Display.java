@@ -58,7 +58,7 @@ public class Display {
             System.out.println(house + " (Player 2)");
             System.out.println(compare(player, house));
 
-            // Apply the card upgrade immediately (and print what changed) so it actually "does something"
+            // Apply the card upgrade
             int sov = rand.nextInt(0, 2);
             if (player.compareTo(house) > 0 || (player.compareTo(house) == 0 && player.compareSuit(house) > 0)) {
                 String before = player.toString();

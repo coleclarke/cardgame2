@@ -15,7 +15,7 @@ public class DiceFace implements Comparable<DiceFace> {
         this.die = roll.die();
     }
 
-    // Lets Dice.improveWinner(...) know which die to upgrade
+
     public Dice.Die getDie() {
         return die;
     }

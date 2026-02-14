@@ -131,7 +131,7 @@ public class Dice {
             }
         }
 
-        // try to increase die size (with possible backfire)
+        // try to increase die size with possible backfire
         if (oneIn(10)) {
             boolean backfire = oneIn(10);
             die.shiftSides(backfire ? -1 : +1);
