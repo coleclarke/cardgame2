@@ -62,8 +62,7 @@ public class Dice {
         }
 
         private void shiftSides(int step) {
-            int next = Math.max(0, Math.min(SIDE_TRACK.length - 1, sideTrackIndex + step));
-            sideTrackIndex = next;
+            sideTrackIndex = Math.max(0, Math.min(SIDE_TRACK.length - 1, sideTrackIndex + step));
         }
 
         private static int indexForSides(int sides) {

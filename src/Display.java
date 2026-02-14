@@ -42,7 +42,7 @@ public class Display {
         }
     }
 
-    public static void main(String[] args) {
+    static void main() {
         initialize();
         Scanner in = new Scanner(System.in);
         Random rand = new Random();
@@ -51,7 +51,7 @@ public class Display {
         Card house = new Card();
         while (true) {
             // display cards and winner
-            System.out.println("");
+            System.out.println();
             System.out.println(player + " (Player 1)");
             System.out.println(house + " (Player 2)");
             System.out.println(compare(player, house));
