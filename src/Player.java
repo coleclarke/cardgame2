@@ -5,7 +5,6 @@ public class Player {
     private final String name;
 
     private Card currentCard;
-    private DiceFace currentDiceFace;
 
     public Player(String name) {
         this.name = Objects.requireNonNull(name, "name");
@@ -21,17 +20,14 @@ public class Player {
     }
 
     public DiceFace rollDieFace() {
-        this.currentDiceFace = new DiceFace(); // DiceFace() rolls from shared Dice pool
-        return currentDiceFace;
+        // DiceFace() rolls from shared Dice pool
+        return new DiceFace();
     }
 
     public Card getCurrentCard() {
         return currentCard;
     }
 
-    public DiceFace getCurrentDiceFace() {
-        return currentDiceFace;
-    }
 
     public void improveCurrentCardRandomly(Random rand) {
         if (currentCard == null) return;
