@@ -4,7 +4,7 @@ import java.util.Random;
 public class Player {
     private final String name;
 
-    private Card currentCard;
+    private HandCard currentCard;
 
     public Player(String name) {
         this.name = Objects.requireNonNull(name, "name");
@@ -14,32 +14,29 @@ public class Player {
         return name;
     }
 
-    public Card drawCard() {
-        this.currentCard = new Card(); // Card() draws from Deck.draw()
+    public HandCard drawCard() {
+        this.currentCard = Deck.draw(); // draw flips a flag in deck + returns a COPY into the hand
         return currentCard;
     }
 
     public DiceFace rollDieFace() {
-        // DiceFace() rolls from shared Dice pool
         return new DiceFace();
     }
 
-    public Card getCurrentCard() {
+    public HandCard getCurrentCard() {
         return currentCard;
     }
-
 
     public void improveCurrentCardRandomly(Random rand) {
         if (currentCard == null) return;
 
-        // winner's card randomly increases rank by 1 OR suit by 1
         if (rand.nextInt(2) == 0) currentCard.updateCardValue();
         else currentCard.updateCardSuit();
     }
 
     public void returnCurrentCardToDeck() {
         if (currentCard == null) return;
-        Deck.returnCard(currentCard);
+        Deck.returnCard(currentCard); // persists changes + flips removed flag back
         currentCard = null;
     }
 
