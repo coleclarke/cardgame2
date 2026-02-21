@@ -26,9 +26,15 @@ public class Dice {
         // Stop adding dice once we hit the max pool size
         if (pool.size() >= POOL_CAP) return;
 
-        // We use the LENGTH of the string as the "number of sides"
-        // Example: "1234" => 4 sides, "123456" => 6 sides
-        int sides = faces.length();
+
+        int sides;
+        int declaredSides = Character.digit(faces.charAt(0), 10);
+        if (declaredSides > 0) {
+            sides = declaredSides;
+        } else {
+            // Fallback/legacy interpretation: number of sides comes from length
+            sides = faces.length();
+        }
 
         // Create the die (it will snap sides to SIDE_TRACK inside the constructor)
         pool.add(new Die(sides));

@@ -46,56 +46,59 @@ public class Display {
         initialize();
         Scanner in = new Scanner(System.in);
         Random rand = new Random();
-        System.out.println("Welcome to the Card / Dice Battler!");
-        Card player;
-        Card house;
-        while (true) {
-            player = new Card();
-            house = new Card();
-            // display cards and winner
-            System.out.println();
-            System.out.println(player + " (Player 1)");
-            System.out.println(house + " (Player 2)");
-            System.out.println(compare(player, house));
 
-            // Apply the card upgrade
-            int sov = rand.nextInt(0, 2);
-            if (player.compareTo(house) > 0 || (player.compareTo(house) == 0 && player.compareSuit(house) > 0)) {
-                String before = player.toString();
-                if (sov == 0) player.updateCardValue();
-                else player.updateCardSuit();
-                System.out.println("Card improvement (Player 1): " + before + " -> " + player);
-            } else if (house.compareTo(player) > 0 || (house.compareTo(player) == 0 && house.compareSuit(player) > 0)) {
-                String before = house.toString();
-                if (sov == 0) house.updateCardValue();
-                else house.updateCardSuit();
-                System.out.println("Card improvement (Player 2): " + before + " -> " + house);
+        System.out.println("Welcome to the Card / Dice Battler!");
+
+        Player p1 = new Player("Player 1");
+        Player p2 = new Player("Player 2");
+
+        while (true) {
+            // each player draws
+            Card c1 = p1.drawCard();
+            Card c2 = p2.drawCard();
+
+            System.out.println();
+            System.out.println(c1 + " (" + p1.getName() + ")");
+            System.out.println(c2 + " (" + p2.getName() + ")");
+            System.out.println(compare(c1, c2, p1.getName(), p2.getName()));
+
+            // Determine card winner
+            Player cardWinner = null;
+            if (c1.compareTo(c2) > 0 || (c1.compareTo(c2) == 0 && c1.compareSuit(c2) > 0)) {
+                cardWinner = p1;
+            } else if (c2.compareTo(c1) > 0 || (c2.compareTo(c1) == 0 && c2.compareSuit(c1) > 0)) {
+                cardWinner = p2;
+            }
+
+            if (cardWinner != null) {
+                String before = cardWinner.getCurrentCard().toString();
+                cardWinner.improveCurrentCardRandomly(rand);
+                System.out.println("Card improvement (" + cardWinner.getName() + "): " + before + " -> " + cardWinner.getCurrentCard());
             } else {
                 System.out.println("Card improvement: tie, no change");
             }
 
-            // puts cards back
-            Deck.returnCard(player);
-            Deck.returnCard(house);
+            // Return cards back to deck (after upgrades)
+            p1.returnCurrentCardToDeck();
+            p2.returnCurrentCardToDeck();
 
-            // display dice and winner
-            DiceFace d1 = new DiceFace();
-            DiceFace d2 = new DiceFace();
+            //
+            DiceFace d1 = p1.rollDieFace();
+            DiceFace d2 = p2.rollDieFace();
 
-            System.out.println(d1 + " (Player 1)");
-            System.out.println(d2 + " (Player 2)");
+            System.out.println(d1 + " (" + p1.getName() + ")");
+            System.out.println(d2 + " (" + p2.getName() + ")");
 
             if (d1.compareTo(d2) > 0) {
-                System.out.println("Player 1's die face is higher.");
+                System.out.println(p1.getName() + "'s die face is higher.");
                 Dice.improveWinner(d1);
             } else if (d1.compareTo(d2) < 0) {
-                System.out.println("Player 2's die face is higher.");
+                System.out.println(p2.getName() + "'s die face is higher.");
                 Dice.improveWinner(d2);
             } else {
                 System.out.println("Tie!");
             }
 
-            // Show dice pool size
             System.out.println("Dice pool size: " + Dice.getPoolSize());
 
             System.out.print("Continue? (y/n) Or Restart (r): ");
@@ -110,18 +113,18 @@ public class Display {
     }
 
     // old way of comparing cards too lazy to move into main class or make the dice like this
-    private static String compare(Card a, Card b) {
+    private static String compare(Card a, Card b, String player1, String player2) {
         if (a.compareTo(b) < 0){
-            return "Player 2's card is higher";
+            return player2 + "'s card is higher";
         }
         if (a.compareTo(b) > 0) {
-            return "Player 1's card is higher";
+            return player1 + "'s card is higher";
         }
         if (a.compareSuit(b) > 0) {
-            return "Player 1's card is higher";
+            return player1 + "'s card is higher";
         }
         if (a.compareSuit(b) < 0) {
-            return "Player 2's card is higher";
+            return player2 + "'s card is higher";
         }
         return "Tie";
     }
