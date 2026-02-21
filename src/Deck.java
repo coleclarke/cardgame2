@@ -35,7 +35,6 @@ public class Deck {
         if (available.isEmpty()) {
             throw new IllegalStateException("Deck empty (all cards are flagged as removed).");
         }
-        System.out.println(cards);
         return available.get(rand.nextInt(available.size()));
     }
 
