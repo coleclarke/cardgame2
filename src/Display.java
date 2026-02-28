@@ -9,7 +9,7 @@ import java.util.Set;
 public class Display {
 
     public static void initialize() {
-        // Load cards and dice from maindeck.txt
+
         List<String> rawCards = new ArrayList<>();
         List<String> diceDefs = new ArrayList<>();
 
@@ -33,11 +33,11 @@ public class Display {
                         }
                         diceDefs.add(die.toString());
 
-                        if (i < line.length() && line.charAt(i) == '#') i++; // skip closing '#'
+                        if (i < line.length() && line.charAt(i) == '#') i++;
                         continue;
                     }
 
-                    // Card definition: must be 2 chars and must match [value][suit]
+
                     if (i + 1 < line.length()) {
                         char v = line.charAt(i);
                         char s = line.charAt(i + 1);
@@ -53,7 +53,7 @@ public class Display {
                         }
                     }
 
-                    // If we get here, the character doesn't start a valid card; skip 1 and try again.
+
                     i++;
                 }
             }

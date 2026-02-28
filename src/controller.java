@@ -29,7 +29,7 @@ public class controller {
 
             panel = new DrawPanel();
             panel.setPreferredSize(new Dimension(PREF_W, PREF_H));
-            panel.setBackground(new Color(20, 120, 60)); // table green
+            panel.setBackground(new Color(20, 120, 60));
 
             frame.setContentPane(panel);
             frame.pack();
@@ -60,7 +60,7 @@ public class controller {
         ));
 
         // Player 2 (bottom)
-        int bottomY = PREF_H - margin - 310;
+        int bottomY = PREF_H - margin - 230;
         next.add(new VisualLabel(margin, bottomY - 30, p2.getName(), new Font("SansSerif", Font.BOLD, 18)));
         next.add(new VisualCard(
                 margin,
@@ -84,7 +84,7 @@ public class controller {
                 next.add(new VisualDie(x, diceStartY, dieSize, dieSize, label));
             }
         }
-
+        next.add(new VisualLabel(275, 120, "Y to continue, R to restart, N to quit", new Font("SansSerif", Font.BOLD, 18)));
         SwingUtilities.invokeLater(() -> {
             visualObjects.clear();
             visualObjects.addAll(next);
@@ -147,9 +147,7 @@ public class controller {
         }
     }
 
-    // ----------------------------
-    // Visual-side model (NOT logic)
-    // ----------------------------
+
 
     private abstract static class VisualObject {
         final int x;
@@ -265,7 +263,7 @@ public class controller {
                 panel = null;
             }
         });
-        // If you want the whole program to stop:
+
         System.exit(0);
     }
 
