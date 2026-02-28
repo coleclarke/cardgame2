@@ -1,62 +1,96 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.Set;
 
 public class Display {
 
     public static void initialize() {
-        // Load cards and dice from maindeck.txt I know you wanted 4 dice and 52 cards but this allowes more customization and idk what the point of maindeck.txt is otherwise
+        // Load cards and dice from maindeck.txt
         List<String> rawCards = new ArrayList<>();
         List<String> diceDefs = new ArrayList<>();
 
         try (Scanner scanner = new Scanner(new File("src/maindeck.txt"))) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
+                if (line == null) continue;
+
+                line = line.trim();
+                if (line.isEmpty()) continue;
 
                 int i = 0;
                 while (i < line.length()) {
-                    if (line.charAt(i) == '#') {
+                    char ch = line.charAt(i);
+
+                    if (ch == '#') {
                         i++;
                         StringBuilder die = new StringBuilder();
                         while (i < line.length() && line.charAt(i) != '#') {
                             die.append(line.charAt(i++));
                         }
                         diceDefs.add(die.toString());
-                    } else {
-                        rawCards.add(line.substring(i, i + 2));
-                        i += 2;
+
+                        if (i < line.length() && line.charAt(i) == '#') i++; // skip closing '#'
+                        continue;
                     }
+
+                    // Card definition: must be 2 chars and must match [value][suit]
+                    if (i + 1 < line.length()) {
+                        char v = line.charAt(i);
+                        char s = line.charAt(i + 1);
+
+                        boolean valueOk = (v == 'a' || v == '2' || v == '3' || v == '4' || v == '5' || v == '6'
+                                || v == '7' || v == '8' || v == '9' || v == '0' || v == 'j' || v == 'q' || v == 'k');
+                        boolean suitOk = (s == 'c' || s == 'd' || s == 'h' || s == 's');
+
+                        if (valueOk && suitOk) {
+                            rawCards.add("" + v + s);
+                            i += 2;
+                            continue;
+                        }
+                    }
+
+                    // If we get here, the character doesn't start a valid card; skip 1 and try again.
+                    i++;
                 }
             }
         } catch (FileNotFoundException e) {
             System.out.println("maindeck.txt not found");
             System.exit(1);
         }
-        // pushes the cards into the deck
+
         Deck.init(rawCards);
-        // resets the dice pool incase of restart and pushes dice
+
         Dice.resetPool();
         for (String d : diceDefs) {
             Dice.init(d);
         }
     }
 
-    static void main() {
+    public static void main(String[] args) {
         initialize();
-        Scanner in = new Scanner(System.in);
         Random rand = new Random();
 
-
+        controller gfx = new controller();
+        gfx.initialize("Dice Game");
 
         System.out.println("Welcome to the Card / Dice Battler!");
+        System.out.println("Click the window, then press Y to continue, N to quit, R to restart.");
 
         Player p1 = new Player("Player 1");
         Player p2 = new Player("Player 2");
 
         while (true) {
-            // each player draws (HandCard copy; deck uses a removed-flag)
             HandCard c1 = p1.drawCard();
             HandCard c2 = p2.drawCard();
+
+            DiceFace d1 = p1.rollDieFace();
+            DiceFace d2 = p2.rollDieFace();
+
+            gfx.render(p1, p2, List.of(d1, d2));
 
             System.out.println();
             System.out.println(c1 + " (" + p1.getName() + ")");
@@ -78,15 +112,8 @@ public class Display {
                 System.out.println("Card improvement: tie, no change");
             }
 
-            // Return cards back to deck (this flips the removed flag back AND persists upgrades)
             p1.returnCurrentCardToDeck();
             p2.returnCurrentCardToDeck();
-
-            DiceFace d1 = p1.rollDieFace();
-            DiceFace d2 = p2.rollDieFace();
-
-            System.out.println(d1 + " (" + p1.getName() + ")");
-            System.out.println(d2 + " (" + p2.getName() + ")");
 
             if (d1.compareTo(d2) > 0) {
                 System.out.println(p1.getName() + "'s die face is higher.");
@@ -100,21 +127,22 @@ public class Display {
 
             System.out.println("Dice pool size: " + Dice.getPoolSize());
             System.out.print("Continue? (y/n) Or Restart (r): ");
-            String temp = in.nextLine();
-            if (temp.equals("r")) {
+
+            char cmd = gfx.waitForCommand(Set.of('y', 'n', 'r', 't'));
+            if (cmd == 'r') {
                 initialize();
                 System.out.println("Restarted!\n\n\n");
-            } else if (temp.equals("t")) {
+            } else if (cmd == 't') {
                 Deck.prntCards();
-            } else if (!temp.equals("y")) break;
+            } else if (cmd != 'y') {
+                break;
+            }
         }
     }
 
-
-
-    // old way of comparing cards too lazy to move into main class or make the dice like this
+    // old way of comparing cards
     private static String compare(Card a, Card b, String player1, String player2) {
-        if (a.compareTo(b) < 0){
+        if (a.compareTo(b) < 0) {
             return player2 + "'s card is higher";
         }
         if (a.compareTo(b) > 0) {
