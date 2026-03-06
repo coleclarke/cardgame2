@@ -1,11 +1,33 @@
+/*
+TEST CODE
+
+This program creates multiple objects that implement the
+Displayable interface (VisualLabel, VisualCard, VisualDie).
+
+These objects are stored in a list and rendered to the screen
+through the DrawPanel class.
+
+Because all objects implement Displayable, the display system
+can render any new visual class added later without changing
+the rendering framework. This demonstrates a reusable display framework.
+*/
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.ArrayList;
 import java.util.Set;
 
+
+
+interface Displayable {
+
+    int getX();
+    int getY();
+
+    void draw(Graphics2D g2);
+}
 
 public class controller {
 
@@ -15,21 +37,23 @@ public class controller {
     private JFrame frame;
     private DrawPanel panel;
 
-    private final List<VisualObject> visualObjects = new ArrayList<>();
+    private final List<Displayable> visualObjects = new ArrayList<>();
 
     private final Object commandLock = new Object();
     private volatile Character lastCommand = null;
 
     public void initialize(String windowTitle) {
+
         if (frame != null) return;
 
         SwingUtilities.invokeLater(() -> {
+
             frame = new JFrame(windowTitle == null ? "Dice2" : windowTitle);
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
             panel = new DrawPanel();
             panel.setPreferredSize(new Dimension(PREF_W, PREF_H));
-            panel.setBackground(new Color(20, 120, 60));
+            panel.setBackground(new Color(20,120,60));
 
             frame.setContentPane(panel);
             frame.pack();
@@ -43,258 +67,274 @@ public class controller {
     }
 
     public void render(Player p1, Player p2, List<DiceFace> diceFaces) {
-        Objects.requireNonNull(p1, "p1");
-        Objects.requireNonNull(p2, "p2");
 
-        List<VisualObject> next = new ArrayList<>();
+        List<Displayable> next = new ArrayList<>();
         int margin = 30;
 
-        // Player 1 (top)
-        next.add(new VisualLabel(margin, margin, p1.getName(), new Font("SansSerif", Font.BOLD, 18)));
+        next.add(new VisualLabel(margin,margin,p1.getName(),
+                new Font("SansSerif",Font.BOLD,18)));
+
         next.add(new VisualCard(
                 margin,
-                margin + 30,
+                margin+30,
                 180,
                 240,
-                p1.getCurrentCard() == null ? "(no card)" : p1.getCurrentCard().toString()
+                p1.getCurrentCard()==null?"(no card)":p1.getCurrentCard().toString()
         ));
 
-        // Player 2 (bottom)
-        int bottomY = PREF_H - margin - 230;
-        next.add(new VisualLabel(margin, bottomY - 30, p2.getName(), new Font("SansSerif", Font.BOLD, 18)));
+        int bottomY = PREF_H-margin-230;
+
+        next.add(new VisualLabel(margin,bottomY-30,p2.getName(),
+                new Font("SansSerif",Font.BOLD,18)));
+
         next.add(new VisualCard(
                 margin,
                 bottomY,
                 180,
                 240,
-                p2.getCurrentCard() == null ? "(no card)" : p2.getCurrentCard().toString()
+                p2.getCurrentCard()==null?"(no card)":p2.getCurrentCard().toString()
         ));
 
-        // Dice (center)
-        int diceStartX = margin + 240;
-        int diceStartY = (PREF_H / 2) - 40;
+        int diceStartX = margin+240;
+        int diceStartY = (PREF_H/2)-40;
         int dieSize = 70;
         int gap = 12;
 
-        if (diceFaces != null) {
-            for (int i = 0; i < diceFaces.size(); i++) {
+        if(diceFaces!=null){
+            for(int i=0;i<diceFaces.size();i++){
+
                 DiceFace face = diceFaces.get(i);
-                String label = (face == null) ? "?" : face.toString();
-                int x = diceStartX + i * (dieSize + gap);
-                next.add(new VisualDie(x, diceStartY, dieSize, dieSize, label));
+                String label = face==null?"?":face.toString();
+
+                int x = diceStartX+i*(dieSize+gap);
+
+                next.add(new VisualDie(x,diceStartY,dieSize,dieSize,label));
             }
         }
-        next.add(new VisualLabel(275, 120, "Y to continue, R to restart, N to quit", new Font("SansSerif", Font.BOLD, 18)));
+
+        next.add(new VisualLabel(275,120,
+                "Y to continue, R to restart, N to quit",
+                new Font("SansSerif",Font.BOLD,18)));
+
         SwingUtilities.invokeLater(() -> {
+
             visualObjects.clear();
             visualObjects.addAll(next);
-            if (panel != null) panel.repaint();
+
+            if(panel!=null) panel.repaint();
         });
     }
 
+    public char waitForCommand(Set<Character> allowed){
 
-    public char waitForCommand(Set<Character> allowed) {
-        Objects.requireNonNull(allowed, "allowed");
+        while(true){
 
-        while (true) {
             Character c;
-            synchronized (commandLock) {
-                while (lastCommand == null) {
-                    try {
+
+            synchronized(commandLock){
+
+                while(lastCommand==null){
+                    try{
                         commandLock.wait();
-                    } catch (InterruptedException e) {
+                    }
+                    catch(InterruptedException e){
                         Thread.currentThread().interrupt();
                         return 'n';
                     }
                 }
+
                 c = lastCommand;
                 lastCommand = null;
             }
 
             char normalized = Character.toLowerCase(c);
-            if (allowed.contains(normalized)) return normalized;
+
+            if(allowed.contains(normalized)) return normalized;
         }
     }
 
-    private void installKeyBindings(JComponent target) {
+    private void installKeyBindings(JComponent target){
+
         InputMap im = target.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = target.getActionMap();
 
-        bindKey(im, am, "y", () -> pushCommand('y'));
-        bindKey(im, am, "n", this::closeWindow);
-        bindKey(im, am, "r", () -> pushCommand('r'));
-        bindKey(im, am, "t", () -> pushCommand('t'));
+        bindKey(im,am,"y",()->pushCommand('y'));
+        bindKey(im,am,"n",this::closeWindow);
+        bindKey(im,am,"r",()->pushCommand('r'));
+        bindKey(im,am,"t",()->pushCommand('t'));
     }
 
-    private static void bindKey(InputMap im, ActionMap am, String key, Runnable action) {
-        String actionName = "cmd_" + key;
+    private static void bindKey(InputMap im,ActionMap am,String key,Runnable action){
 
-        im.put(KeyStroke.getKeyStroke(key), actionName);
-        im.put(KeyStroke.getKeyStroke(key.toUpperCase()), actionName);
+        String actionName="cmd_"+key;
 
-        am.put(actionName, new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        im.put(KeyStroke.getKeyStroke(key),actionName);
+        im.put(KeyStroke.getKeyStroke(key.toUpperCase()),actionName);
+
+        am.put(actionName,new AbstractAction(){
+            public void actionPerformed(ActionEvent e){
                 action.run();
             }
         });
     }
 
-    private void pushCommand(char c) {
-        synchronized (commandLock) {
+    private void pushCommand(char c){
+
+        synchronized(commandLock){
+
             lastCommand = c;
             commandLock.notifyAll();
         }
     }
 
+    private static final class VisualLabel implements Displayable{
 
+        private int x;
+        private int y;
+        private String text;
+        private Font font;
 
-    private abstract static class VisualObject {
-        final int x;
-        final int y;
+        VisualLabel(int x,int y,String text,Font font){
 
-        VisualObject(int x, int y) {
-            this.x = x;
-            this.y = y;
+            this.x=x;
+            this.y=y;
+            this.text=text;
+            this.font=font;
         }
 
-        abstract void draw(Graphics2D g2);
-    }
+        VisualLabel(VisualLabel other){
 
-    private static final class VisualLabel extends VisualObject {
-        private final String text;
-        private final Font font;
-
-        VisualLabel(int x, int y, String text, Font font) {
-            super(x, y);
-            this.text = text;
-            this.font = font;
+            this.x=other.x;
+            this.y=other.y;
+            this.text=other.text;
+            this.font=other.font;
         }
 
-        @Override
-        void draw(Graphics2D g2) {
+        public int getX(){return x;}
+        public int getY(){return y;}
+
+        public void draw(Graphics2D g2){
+
             g2.setFont(font);
             g2.setColor(Color.WHITE);
-            g2.drawString(text, x, y + g2.getFontMetrics().getAscent());
+            g2.drawString(text,x,y+g2.getFontMetrics().getAscent());
         }
     }
 
-    private static final class VisualCard extends VisualObject {
-        private final int w;
-        private final int h;
-        private final String label;
+    private static final class VisualCard implements Displayable{
 
-        VisualCard(int x, int y, int w, int h, String label) {
-            super(x, y);
-            this.w = w;
-            this.h = h;
-            this.label = label;
+        private int x;
+        private int y;
+        private int w;
+        private int h;
+        private String label;
+
+        VisualCard(int x,int y,int w,int h,String label){
+
+            this.x=x;
+            this.y=y;
+            this.w=w;
+            this.h=h;
+            this.label=label;
         }
 
-        @Override
-        void draw(Graphics2D g2) {
-            g2.setColor(new Color(245, 245, 245));
-            g2.fillRoundRect(x, y, w, h, 18, 18);
+        VisualCard(VisualCard other){
 
-            g2.setStroke(new BasicStroke(2f));
+            this.x=other.x;
+            this.y=other.y;
+            this.w=other.w;
+            this.h=other.h;
+            this.label=other.label;
+        }
+
+        public int getX(){return x;}
+        public int getY(){return y;}
+
+        public void draw(Graphics2D g2){
+
+            g2.setColor(new Color(245,245,245));
+            g2.fillRoundRect(x,y,w,h,18,18);
+
             g2.setColor(Color.BLACK);
-            g2.drawRoundRect(x, y, w, h, 18, 18);
+            g2.drawRoundRect(x,y,w,h,18,18);
 
-            g2.setFont(new Font("Monospaced", Font.PLAIN, 14));
-            g2.setColor(Color.BLACK);
-
-            int padding = 10;
-            drawWrappedText(g2, label, x + padding, y + padding, w - padding * 2, h - padding * 2);
+            g2.drawString(label,x+10,y+20);
         }
     }
 
-    private static final class VisualDie extends VisualObject {
-        private final int w;
-        private final int h;
-        private final String faceLabel;
+    private static final class VisualDie implements Displayable{
 
-        VisualDie(int x, int y, int w, int h, String faceLabel) {
-            super(x, y);
-            this.w = w;
-            this.h = h;
-            this.faceLabel = faceLabel;
+        private int x;
+        private int y;
+        private int w;
+        private int h;
+        private String faceLabel;
+
+        VisualDie(int x,int y,int w,int h,String faceLabel){
+
+            this.x=x;
+            this.y=y;
+            this.w=w;
+            this.h=h;
+            this.faceLabel=faceLabel;
         }
 
-        @Override
-        void draw(Graphics2D g2) {
+        VisualDie(VisualDie other){
+
+            this.x=other.x;
+            this.y=other.y;
+            this.w=other.w;
+            this.h=other.h;
+            this.faceLabel=other.faceLabel;
+        }
+
+        public int getX(){return x;}
+        public int getY(){return y;}
+
+        public void draw(Graphics2D g2){
+
             g2.setColor(Color.WHITE);
-            g2.fillRoundRect(x, y, w, h, 14, 14);
+            g2.fillRoundRect(x,y,w,h,14,14);
 
-            g2.setStroke(new BasicStroke(2f));
             g2.setColor(Color.BLACK);
-            g2.drawRoundRect(x, y, w, h, 14, 14);
+            g2.drawRoundRect(x,y,w,h,14,14);
 
-            g2.setFont(new Font("SansSerif", Font.BOLD, 18));
-            FontMetrics fm = g2.getFontMetrics();
-            int tx = x + (w - fm.stringWidth(faceLabel)) / 2;
-            int ty = y + (h + fm.getAscent()) / 2 - 4;
-            g2.drawString(faceLabel, tx, ty);
+            g2.drawString(faceLabel,x+w/2,y+h/2);
         }
     }
 
-    private final class DrawPanel extends JPanel {
-        @Override
-        protected void paintComponent(Graphics g) {
+    private final class DrawPanel extends JPanel{
+
+        protected void paintComponent(Graphics g){
+
             super.paintComponent(g);
 
             Graphics2D g2 = (Graphics2D) g.create();
-            try {
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                for (VisualObject vo : visualObjects) {
+            try{
+
+                for(Displayable vo : visualObjects){
                     vo.draw(g2);
                 }
-            } finally {
+
+            }finally{
                 g2.dispose();
             }
         }
     }
 
-    public void closeWindow() {
-        SwingUtilities.invokeLater(() -> {
-            if (frame != null) {
+    public void closeWindow(){
+
+        SwingUtilities.invokeLater(()->{
+
+            if(frame!=null){
+
                 frame.dispose();
-                frame = null;
-                panel = null;
+                frame=null;
+                panel=null;
             }
         });
 
         System.exit(0);
-    }
-
-    private static void drawWrappedText(Graphics2D g2, String text, int x, int y, int maxW, int maxH) {
-        if (text == null) return;
-
-        FontMetrics fm = g2.getFontMetrics();
-        int lineH = fm.getHeight();
-        int curY = y + fm.getAscent();
-
-        String[] words = text.split("\\s+");
-        StringBuilder line = new StringBuilder();
-
-        for (String word : words) {
-            String next = line.isEmpty() ? word : line + " " + word;
-            if (fm.stringWidth(next) <= maxW) {
-                line.setLength(0);
-                line.append(next);
-                continue;
-            }
-
-            if (curY - y > maxH) return;
-            g2.drawString(line.toString(), x, curY);
-            curY += lineH;
-
-            line.setLength(0);
-            line.append(word);
-        }
-
-        if (!line.isEmpty() && (curY - y) <= maxH) {
-            g2.drawString(line.toString(), x, curY);
-        }
     }
 }
