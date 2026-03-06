@@ -189,10 +189,10 @@ public class controller {
 
     private static final class VisualLabel implements Displayable{
 
-        private int x;
-        private int y;
-        private String text;
-        private Font font;
+        private final int x;
+        private final int y;
+        private final String text;
+        private final Font font;
 
         VisualLabel(int x,int y,String text,Font font){
 
@@ -223,11 +223,11 @@ public class controller {
 
     private static final class VisualCard implements Displayable{
 
-        private int x;
-        private int y;
-        private int w;
-        private int h;
-        private String label;
+        private final int x;
+        private final int y;
+        private final int w;
+        private final int h;
+        private final String label;
 
         VisualCard(int x,int y,int w,int h,String label){
 
@@ -264,11 +264,11 @@ public class controller {
 
     private static final class VisualDie implements Displayable{
 
-        private int x;
-        private int y;
-        private int w;
-        private int h;
-        private String faceLabel;
+        private final int x;
+        private final int y;
+        private final int w;
+        private final int h;
+        private final String faceLabel;
 
         VisualDie(int x,int y,int w,int h,String faceLabel){
 
