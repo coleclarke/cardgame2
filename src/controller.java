@@ -1,11 +1,7 @@
 /*
-TEST CODE
-
-This program creates multiple objects that implement the
-Displayable interface (VisualLabel, VisualCard, VisualDie).
+This program creates my text cards and dice in seperate reusable areas (VisualLabel, VisualCard, VisualDie).
 
 These objects are stored in a list and rendered to the screen
-through the DrawPanel class.
 
 Because all objects implement Displayable, the display system
 can render any new visual class added later without changing
@@ -22,10 +18,6 @@ import java.util.Set;
 
 
 interface Displayable {
-
-    int getX();
-    int getY();
-
     void draw(Graphics2D g2);
 }
 
@@ -65,14 +57,14 @@ public class controller {
             panel.requestFocusInWindow();
         });
     }
-
+    // my "test code" this is just actually implimented in my project now and functions.
     public void render(Player p1, Player p2, List<DiceFace> diceFaces) {
 
         List<Displayable> next = new ArrayList<>();
         int margin = 30;
 
         next.add(new VisualLabel(margin,margin,p1.getName(),
-                new Font("SansSerif",Font.BOLD,18)));
+                new Font("SansSerif",Font.PLAIN,18)));
 
         next.add(new VisualCard(
                 margin,
@@ -85,7 +77,7 @@ public class controller {
         int bottomY = PREF_H-margin-230;
 
         next.add(new VisualLabel(margin,bottomY-30,p2.getName(),
-                new Font("SansSerif",Font.BOLD,18)));
+                new Font("SansSerif",Font.PLAIN,18)));
 
         next.add(new VisualCard(
                 margin,
@@ -114,7 +106,7 @@ public class controller {
 
         next.add(new VisualLabel(275,120,
                 "Y to continue, R to restart, N to quit",
-                new Font("SansSerif",Font.BOLD,18)));
+                new Font("SansSerif",Font.PLAIN,18)));
 
         SwingUtilities.invokeLater(() -> {
 
@@ -210,9 +202,6 @@ public class controller {
             this.font=other.font;
         }
 
-        public int getX(){return x;}
-        public int getY(){return y;}
-
         public void draw(Graphics2D g2){
 
             g2.setFont(font);
@@ -247,8 +236,6 @@ public class controller {
             this.label=other.label;
         }
 
-        public int getX(){return x;}
-        public int getY(){return y;}
 
         public void draw(Graphics2D g2){
 
@@ -287,9 +274,6 @@ public class controller {
             this.h=other.h;
             this.faceLabel=other.faceLabel;
         }
-
-        public int getX(){return x;}
-        public int getY(){return y;}
 
         public void draw(Graphics2D g2){
 
