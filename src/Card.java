@@ -1,27 +1,28 @@
-public class Card implements Comparable<Card> {
+import java.util.Objects;
+
+public abstract class Card implements Comparable<Card> {
     //Values
-    enum Value {
+    public enum Value {
         ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN,
         EIGHT, NINE, TEN, JACK, QUEEN, KING
     }
+
     //Suits
-    enum Suit {
+    public enum Suit {
         CLUBS, DIAMONDS, HEARTS, SPADES
     }
 
     private Value value;
     private Suit suit;
 
-    private Card(Value v, Suit s) {
-        value = v;
-        suit = s;
+    protected Card(Value value, Suit suit) {
+        this.value = Objects.requireNonNull(value, "value");
+        this.suit = Objects.requireNonNull(suit, "suit");
     }
-    // takes the "code" like ac and makes it Clubs Ace
-    public static Card fromCode(String code) {
-        char v = code.charAt(0);
-        char s = code.charAt(1);
 
-        Value value = switch (v) {
+    // takes the "code" like ac and makes it Clubs Ace
+    public static Card.Value valueFromCode(char v) {
+        return switch (v) {
             case 'a' -> Value.ACE;
             case '2' -> Value.TWO;
             case '3' -> Value.THREE;
@@ -35,25 +36,37 @@ public class Card implements Comparable<Card> {
             case 'j' -> Value.JACK;
             case 'q' -> Value.QUEEN;
             case 'k' -> Value.KING;
-            default -> throw new IllegalArgumentException();
+            default -> throw new IllegalArgumentException("Bad value code: " + v);
         };
+    }
 
-        Suit suit = switch (s) {
+    public static Card.Suit suitFromCode(char s) {
+        return switch (s) {
             case 'c' -> Suit.CLUBS;
             case 'd' -> Suit.DIAMONDS;
             case 'h' -> Suit.HEARTS;
             case 's' -> Suit.SPADES;
-            default -> throw new IllegalArgumentException();
+            default -> throw new IllegalArgumentException("Bad suit code: " + s);
         };
+    }
 
-        return new Card(value, suit);
+    public Value getValue() {
+        return value;
     }
-    //makes the card
-    public Card() {
-        Card c = Deck.draw();
-        this.value = c.value;
-        this.suit = c.suit;
+
+    public Suit getSuit() {
+        return suit;
     }
+
+    // Used by Deck when returning a HandCard (persist upgrades back into the deck)
+    protected void setValue(Value value) {
+        this.value = Objects.requireNonNull(value, "value");
+    }
+
+    protected void setSuit(Suit suit) {
+        this.suit = Objects.requireNonNull(suit, "suit");
+    }
+
     //updates the card value if it wins
     public void updateCardValue() {
         if (this.value != Value.KING) {
@@ -69,27 +82,13 @@ public class Card implements Comparable<Card> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Card other)) return false;
-        return value == other.value && suit == other.suit;
-    }
-
-    @Override
-    public int hashCode() {
-        return 31 * value.hashCode() + suit.hashCode();
-    }
-
-    @Override
     public int compareTo(Card o) {
-        return value.ordinal() - o.value.ordinal();
+        return this.value.ordinal() - o.value.ordinal();
     }
-
 
     public int compareSuit(Card o) {
-        return suit.ordinal() - o.suit.ordinal();
+        return this.suit.ordinal() - o.suit.ordinal();
     }
-
 
     @Override
     public String toString() {
