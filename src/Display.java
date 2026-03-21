@@ -25,6 +25,7 @@ public class Display {
                 while (i < line.length()) {
                     char ch = line.charAt(i);
 
+                    /* Dice definition block: # … # */
                     if (ch == '#') {
                         i++;
                         StringBuilder die = new StringBuilder();
@@ -32,19 +33,23 @@ public class Display {
                             die.append(line.charAt(i++));
                         }
                         diceDefs.add(die.toString());
-
                         if (i < line.length() && line.charAt(i) == '#') i++;
                         continue;
                     }
 
-
+                    /* Card code: two characters (value + suit) */
                     if (i + 1 < line.length()) {
                         char v = line.charAt(i);
                         char s = line.charAt(i + 1);
 
-                        boolean valueOk = (v == 'a' || v == '2' || v == '3' || v == '4' || v == '5' || v == '6'
-                                || v == '7' || v == '8' || v == '9' || v == '0' || v == 'j' || v == 'q' || v == 'k');
-                        boolean suitOk = (s == 'c' || s == 'd' || s == 'h' || s == 's');
+                        boolean valueOk = switch (v) {
+                            case 'a','2','3','4','5','6','7','8','9','0','j','q','k' -> true;
+                            default -> false;
+                        };
+                        boolean suitOk  = switch (s) {
+                            case 'c','d','h','s' -> true;
+                            default -> false;
+                        };
 
                         if (valueOk && suitOk) {
                             rawCards.add("" + v + s);
@@ -52,8 +57,6 @@ public class Display {
                             continue;
                         }
                     }
-
-
                     i++;
                 }
             }
@@ -84,8 +87,8 @@ public class Display {
         Player p2 = new Player("Player 2");
 
         while (true) {
-            HandCard c1 = p1.drawCard();
-            HandCard c2 = p2.drawCard();
+            HandCard c1 = (HandCard) p1.drawCard();
+            HandCard c2 = (HandCard) p2.drawCard();
 
             DiceFace d1 = p1.rollDieFace();
             DiceFace d2 = p2.rollDieFace();
@@ -140,7 +143,7 @@ public class Display {
         }
     }
 
-    // old way of comparing cards
+    /* Simple card‑comparison helper used by the UI */
     private static String compare(Card a, Card b, String player1, String player2) {
         if (a.compareTo(b) < 0) {
             return player2 + "'s card is higher";

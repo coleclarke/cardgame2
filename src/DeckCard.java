@@ -23,9 +23,14 @@ public final class DeckCard extends Card {
         this.removed = removed;
     }
 
+
     public void copyFrom(HandCard handCard) {
-        Objects.requireNonNull(handCard, "handCard");
         setValue(handCard.getValue());
         setSuit(handCard.getSuit());
+    }
+
+    @Override
+    protected int strength() {
+        return getValue().ordinal();
     }
 }

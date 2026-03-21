@@ -1,13 +1,14 @@
 import java.util.Objects;
 
-public abstract class Card implements Comparable<Card> {
-    //Values
+public abstract class Card extends GameObject {
+
+
     public enum Value {
         ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN,
         EIGHT, NINE, TEN, JACK, QUEEN, KING
     }
 
-    //Suits
+
     public enum Suit {
         CLUBS, DIAMONDS, HEARTS, SPADES
     }
@@ -16,12 +17,13 @@ public abstract class Card implements Comparable<Card> {
     private Suit suit;
 
     protected Card(Value value, Suit suit) {
+        super(value + " of " + suit);                     // initialise name for GameObject
         this.value = Objects.requireNonNull(value, "value");
-        this.suit = Objects.requireNonNull(suit, "suit");
+        this.suit  = Objects.requireNonNull(suit,  "suit");
     }
 
-    // takes the "code" like ac and makes it Clubs Ace
-    public static Card.Value valueFromCode(char v) {
+    /* ----------  Parsing helpers  ---------- */
+    public static Value valueFromCode(char v) {
         return switch (v) {
             case 'a' -> Value.ACE;
             case '2' -> Value.TWO;
@@ -36,52 +38,40 @@ public abstract class Card implements Comparable<Card> {
             case 'j' -> Value.JACK;
             case 'q' -> Value.QUEEN;
             case 'k' -> Value.KING;
-            default -> throw new IllegalArgumentException("Bad value code: " + v);
+            default  -> throw new IllegalArgumentException("Bad value code: " + v);
         };
     }
 
-    public static Card.Suit suitFromCode(char s) {
+    public static Suit suitFromCode(char s) {
         return switch (s) {
             case 'c' -> Suit.CLUBS;
             case 'd' -> Suit.DIAMONDS;
             case 'h' -> Suit.HEARTS;
             case 's' -> Suit.SPADES;
-            default -> throw new IllegalArgumentException("Bad suit code: " + s);
+            default  -> throw new IllegalArgumentException("Bad suit code: " + s);
         };
     }
 
-    public Value getValue() {
-        return value;
-    }
+    /* ----------  Getters / Setters  ---------- */
+    public Value getValue() { return value; }
+    public Suit  getSuit()  { return suit;  }
 
-    public Suit getSuit() {
-        return suit;
-    }
+    protected void setValue(Value value) { this.value = Objects.requireNonNull(value, "value"); }
+    protected void setSuit(Suit suit)   { this.suit  = Objects.requireNonNull(suit,  "suit"); }
 
-    // Used by Deck when returning a HandCard (persist upgrades back into the deck)
-    protected void setValue(Value value) {
-        this.value = Objects.requireNonNull(value, "value");
-    }
-
-    protected void setSuit(Suit suit) {
-        this.suit = Objects.requireNonNull(suit, "suit");
-    }
-
-    //updates the card value if it wins
+    /* ----------  Upgrade helpers  ---------- */
     public void updateCardValue() {
         if (this.value != Value.KING) {
             this.value = Value.values()[this.value.ordinal() + 1];
         }
     }
 
-    //updates the card suit if it wins
     public void updateCardSuit() {
         if (this.suit != Suit.SPADES) {
             this.suit = Suit.values()[this.suit.ordinal() + 1];
         }
     }
 
-    @Override
     public int compareTo(Card o) {
         return this.value.ordinal() - o.value.ordinal();
     }

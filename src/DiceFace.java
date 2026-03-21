@@ -1,29 +1,21 @@
-public class DiceFace implements Comparable<DiceFace> {
+public class DiceFace extends GameObject {
 
-    private final int value;
-    // The specific Die object from the shared pool that was used for this roll
-    private final Dice.Die die;
+    private final int value;          // rolled number
+    private final Dice.Die die;       // the die that produced this roll
 
     public DiceFace() {
-        // Roll once from the shared pool
+        super("Dice Face"); // generic name; can be overridden if desired
         Dice.Roll roll = Dice.roll();
-
-        // Save the rolled number
         this.value = roll.value();
-
-        // Save which die was used
-        this.die = roll.die();
+        this.die   = roll.die();
     }
 
+    public Dice.Die getDie() { return die; }
 
-    public Dice.Die getDie() {
-        return die;
-    }
-
+    /** Strength is simply the rolled number. */
     @Override
-    public int compareTo(DiceFace o) {
-        // Positive means "this roll is higher", negative means lower, 0 means tie
-        return value - o.value;
+    protected int strength() {
+        return value;
     }
 
     @Override

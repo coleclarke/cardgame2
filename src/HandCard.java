@@ -8,12 +8,16 @@ public final class HandCard extends Card {
         this.sourceDeckId = sourceDeckId;
     }
 
-    // Copy constructor from a DeckCard (this is the "copy goes into the hand" rule)
     public HandCard(DeckCard deckCard) {
         this(deckCard.getDeckId(), deckCard.getValue(), deckCard.getSuit());
     }
 
-    public int getSourceDeckId() {
-        return sourceDeckId;
+    public int getSourceDeckId() { return sourceDeckId; }
+
+
+    @Override
+    protected int strength() {
+        // Use the card’s rank as its numeric strength
+        return getValue().ordinal();
     }
 }
