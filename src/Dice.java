@@ -14,6 +14,11 @@ public class Dice {
 
     private static final Random rand = new Random();
 
+    // Add this method to access dice pool from outside
+    public static List<Die> getPool() {
+        return new ArrayList<>(pool);
+    }
+
     // Clears the pool
     public static void resetPool() {
         pool.clear();
@@ -45,7 +50,7 @@ public class Dice {
         // Index into SIDE_TRACK (0 means d2, 1 means d4, etc.)
         private int sideTrackIndex;
 
-        private int bonus;          // permanent +1 per win
+        public int bonus;          // permanent +1 per win
 
         private Die(int sides) {
             // Convert sides

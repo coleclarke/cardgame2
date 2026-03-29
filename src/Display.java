@@ -8,6 +8,16 @@ import java.util.Set;
 
 public class Display {
 
+    
+
+    public static <T> void searchWithPredicate(List<T> items, java.util.function.Predicate<T> predicate) {
+        for (T item : items) {
+            if (predicate.test(item)) {
+                System.err.println("Found invalid item: " + item);
+            }
+        }
+    }
+
     public static void initialize() {
 
         List<String> rawCards = new ArrayList<>();
@@ -25,7 +35,7 @@ public class Display {
                 while (i < line.length()) {
                     char ch = line.charAt(i);
 
-                    /* Dice definition block: # … # */
+
                     if (ch == '#') {
                         i++;
                         StringBuilder die = new StringBuilder();
@@ -73,8 +83,43 @@ public class Display {
         }
     }
 
+
+
+    // Check for duplicate cards in decks using O(n^2) approach
+    public static void checkForDuplicateCards() {
+
+        List<DeckCard> cards = Deck.getCards();
+
+        for (int i = 0; i < cards.size(); i++) {
+            DeckCard currentCard = cards.get(i);
+            for (int j = i + 1; j < cards.size(); j++) {
+                DeckCard compareCard = cards.get(j);
+                if (currentCard.getValue() == compareCard.getValue() && 
+                    currentCard.getSuit() == compareCard.getSuit()) {
+                    System.err.println("Duplicate card found: " + currentCard);
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Check for invalid die faces (values greater than max sides)
+    public static void checkForInvalidDieFaces() {
+        List<Dice.Die> dice = Dice.getPool();
+        for (Dice.Die die : dice) {
+            if (die.bonus > 0) {
+                int effectiveMax = die.getSides() + die.bonus;
+                if (effectiveMax > die.getSides()) {
+                    System.err.println("Invalid die face detected: " + die.getSides() + 
+                        " side die with bonus " + die.bonus + " (effective max: " + effectiveMax + ")");
+                }
+            }
+        }
+    }
+
     public static void main(String[] args) {
         initialize();
+        
         Random rand = new Random();
 
         controller gfx = new controller();
@@ -87,6 +132,8 @@ public class Display {
         Player p2 = new Player("Player 2");
 
         while (true) {
+            checkForDuplicateCards();
+            checkForInvalidDieFaces();
             HandCard c1 = (HandCard) p1.drawCard();
             HandCard c2 = (HandCard) p2.drawCard();
 

@@ -75,4 +75,9 @@ public class Deck {
         System.out.println(cards.size());
         System.out.println("Available (not removed): " + availableCount());
     }
+
+    // Add this method to access cards from outside
+    public static List<DeckCard> getCards() {
+        return new ArrayList<>(cards);
+    }
 }
